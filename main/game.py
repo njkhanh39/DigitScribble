@@ -1,17 +1,22 @@
+from loadmodel import RBF_SVM
+from predict_image import ImageProcessor
 import os, time, pygame
 from title import Title
 
 class Game:
     def __init__(self):
-        self.GAME_WIDTH, self.GAME_HEIGHT = 960, 540
+        #innit model
+        self.init_model()
+
+        #self.GAME_WIDTH, self.GAME_HEIGHT = 960, 540
         self.SCREEN_WIDTH, self.SCREEN_HEIGHT = 1280, 720
 
         #running boolean
         self.playing = False
         self.running = True
 
-        #canvas for gaming
-        self.game_canvas = pygame.Surface((self.GAME_WIDTH, self.GAME_HEIGHT))
+        #canvas for gaming -- not sure how to use yet
+        #self.game_canvas = pygame.Surface((self.GAME_WIDTH, self.GAME_HEIGHT))
         #screen for display
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
 
@@ -23,6 +28,7 @@ class Game:
 
         #actions
         self.actions = {"left": False, "right": False, "down": False, "up": False}
+        self.mouse_pos = [0,0]
 
         #load assets (implement later)
         self.load_assets() 
@@ -30,17 +36,36 @@ class Game:
         #RUN
         self.load_states()
     
+    def init_model(self):
+        self.svc = RBF_SVM()
+        self.svc.load()
+        
+
     def game_loop(self):
         self.update_dt()
+        self.handle_input() #handle instant input top of state + mousepos
         self.event_handling()
-        self.update()
-        self.render()
+        self.update() #update the state
+        self.render() #render screen + state
+    
+    def handle_input(self):
+        #mouse pos
+        self.mouse_pos = pygame.mouse.get_pos()
+
+        #update top state
+        self.state_stack[-1].handle_input(self.mouse_pos)
 
     def event_handling(self):
+        #state events
+
+        self.state_stack[-1].handle_event(self.mouse_pos)
+
+        #screen event (quitting) + inputs? (might fix later)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.playing = False
                 self.running = False
+            
             #pressing keys
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
@@ -60,18 +85,19 @@ class Game:
                 if event.key == pygame.K_s:
                     self.actions['down'] = False
                 if event.key == pygame.K_w:
-                    self.actions['up'] = False  
-    
+                    self.actions['up'] = False
+
     def clear(self, color = (0,0,0)):
         self.screen.fill(color)
     
+    #render screen + state
     def render(self):
-        self.state_stack[-1].render(self.game_canvas)
-        self.screen.blit(pygame.transform.scale(self.game_canvas, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT)), (0,0))
+        self.state_stack[-1].render(self.screen)
+        self.screen.blit(pygame.transform.scale(self.screen, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT)), (0,0))
         pygame.display.flip()
     
     def update(self):
-        self.state_stack[-1].update(self.dt, self.actions)
+        self.state_stack[-1].update()
     
     #helpers, called within class???!
     def update_dt(self):
@@ -96,6 +122,7 @@ class Game:
         # print("Font path: ", self.fonts_dir)
         #add the font later
         self.font = pygame.font.Font('main\\assets\\fonts\\audiowide.ttf', 50)
+        self.font_dir = 'main\\assets\\fonts\\audiowide.ttf'
 
     def load_states(self):
         self.title_screen = Title(self)

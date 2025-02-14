@@ -6,7 +6,13 @@ class State():
         self.game = game
         self.prev_state = None
     
-    def update(self, delt, actions):
+    def handle_input(self, mouse_pos): #instant inputs
+        pass
+
+    def handle_event(self, mouse_pos):
+        pass
+
+    def update(self):
         pass
 
     def render(self, surface):
