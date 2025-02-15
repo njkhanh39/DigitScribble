@@ -1,6 +1,6 @@
 from states import State
 from button import Button
-from enemy import Enemy
+from enemy import Enemy, EnemySpawner
 import numpy as np
 import pygame
 
@@ -58,11 +58,12 @@ class GameState(State):
         State.__init__(self, game)
 
         self.init_buttons()
+
+        #canvas
         self.canva = Canva()
 
         #enemies
-        self.enemies = []
-        self.enemies.append(Enemy(1000,70))
+        self.enemy_spawner = EnemySpawner(1000, 70) #coordinate of spawner
 
     def init_buttons(self): 
         self.back_btn = Button(10, 10,
@@ -88,6 +89,10 @@ class GameState(State):
                     X_pred = np.array(self.canva.get_drawing()).reshape(-1, 784)
                     Y_pred = self.game.svc.predict(X_pred)
                     print("PREDICT: ", Y_pred)
+
+                    #test
+                    if(Y_pred == 4):
+                        self.enemy_spawner.kill_first()
                 self.canva.reset()
 
     def update(self):
@@ -98,11 +103,10 @@ class GameState(State):
             self.exit_state()
         
         
-       # self.game.reset_keys() #????
+        # self.game.reset_keys() #????
         
-       #update entities
-        for en in self.enemies:
-            en.update(self.game.dt)
+        #update entities
+        self.enemy_spawner.update(self.game.dt)
 
 
     def render(self, display):
@@ -113,7 +117,5 @@ class GameState(State):
 
         self.back_btn.render(display)
         self.canva.render(display)
-
-        #render entities
-        for en in self.enemies:
-            en.render(display)
+        self.enemy_spawner.render(display)
+        
