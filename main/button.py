@@ -13,10 +13,12 @@ class Button:
         self.button_state = ["idle", "active", "hover"]
         self.cur_state = "idle"
 
+        self.draw_rect = True
+
     def render(self, screen):
         # Change color on hover
         color = self.hover_color if self.cur_state == "hover" else self.button_color
-        pygame.draw.rect(screen, color, self.rect)
+        if(self.draw_rect): pygame.draw.rect(screen, color, self.rect)
         
         # Draw text
         if self.text:
@@ -41,3 +43,7 @@ class Button:
         if self.cur_state == "active":
             return True
         return False
+
+    def set_position(self,x,y):
+        self.rect.x = x
+        self.rect.y = y

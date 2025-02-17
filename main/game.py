@@ -1,6 +1,7 @@
 from loadmodel import RBF_SVM
 from predict_image import ImageProcessor
 import os, time, pygame
+import global_constants as gc
 from title import Title
 
 class Game:
@@ -121,9 +122,8 @@ class Game:
 
         # print("Font path: ", self.fonts_dir)
         #add the font later
-        self.font = pygame.font.Font('main\\assets\\fonts\\audiowide.ttf', 50)
-        self.font_dir = 'main\\assets\\fonts\\audiowide.ttf'
-
+        self.font = pygame.font.Font(gc.FONT_DIR, 50)
+        self.font_dir = gc.FONT_DIR
     def load_states(self):
         self.title_screen = Title(self)
         self.state_stack.append(self.title_screen)
